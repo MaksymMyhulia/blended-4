@@ -1,23 +1,51 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
+import { addTodo, deleteTodo, fetchTodos } from './operations';
 
 const todosSlice = createSlice({
   // Ім'я слайсу
-  name: "todos",
+  name: 'todos',
   // Початковий стан редюсера слайсу
-  initialState: {items: []},
+  initialState: { items: [], isLoading: false, error: null },
   // Об'єкт редюсерів
-  reducers: {
-    addTodo(state, action) {
-        state.items.push(action.payload)
+  extraReducers: {
+    [fetchTodos.pending](state) {
+      state.isLoading = true;
     },
-    deleteTodo(state, action) {
-        state.items = state.items.filter(item => item.id !== action.payload)
+    [fetchTodos.fulfilled](state, action) {
+      state.items = action.payload;
+      state.isLoading = false;
+    },
+    [fetchTodos.rejected](state, action) {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
+    /////////////////////////////////////////////////
+
+    [addTodo.pending](state) {
+      state.isLoading = true;
+    },
+    [addTodo.fulfilled](state, action) {
+      state.items.push(action.payload);
+      state.isLoading = false;
+    },
+    [addTodo.rejected](state, action) {
+      state.isLoading = false;
+      state.error = action.payload;
+    },
+    //////////////////////////////////////////////////
+    [deleteTodo.pending](state) {
+      state.isLoading = true;
+    },
+    [deleteTodo.fulfilled](state, action) {
+      state.items = state.items.filter(item => item.id !== action.payload.id);
+      state.isLoading = false;
+    },
+    [deleteTodo.rejected](state, action) {
+      state.isLoading = false;
+      state.error = action.payload;
     },
   },
 });
 
-// Генератори екшенів
-export const { addTodo, deleteTodo } = todosSlice.actions;
 // Редюсер слайсу
 export const todosReducer = todosSlice.reducer;
-
